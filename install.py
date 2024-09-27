@@ -4,16 +4,21 @@
 
 """
 This script uses venv/virtualenv to create a standalone, production-ready Rez
-installation in the specified directory.
-"""
-import argparse
-import os
-import platform
-import sys
-import shutil
-import subprocess
+installation in the specified directory. 
 
-USE_VIRTUALENV = False
+이 스크립트는 venv/virtualenv를 사용하여 지정된 디렉토리에 독립적이고, 프로덕션 적합한  Rez 설치를 '특정 디렉토리'에 생성.
+
+"""
+import argparse # (argparse) : 명령행 옵션, 인수, 서브명령어 등을 파싱하는 라이브러리
+import os # (os) : 운영체제와 상호작용하기 위한 기본적인 기능을 제공하는 라이브러리
+import platform # (platform) : 파이썬 인터프리터가 실행되는 플랫폼에 대한 정보를 제공하는 라이브러리
+import sys  # (sys) : 파이썬 인터프리터가 제공하는 변수와 함수를 직접 제어할 수 있게 해주는 라이브러리
+import shutil   # (shutil) : 파일 및 디렉토리 작업을 수행하는 데 사용되는 라이브러리
+import subprocess   # (subprocess) : 서브프로세스를 생성하고 통신하는 데 사용되는 라이브러리
+
+
+# 기본적으로 venv를  사용을 시도, 실패 시 virtualenv를 사용
+USE_VIRTUALENV = False  
 try:
     import venv
 except ImportError:
@@ -21,17 +26,17 @@ except ImportError:
     import virtualenv
 
 
-source_path = os.path.dirname(os.path.realpath(__file__))
-src_path = os.path.join(source_path, "src")
-sys.path.insert(0, src_path)
+source_path = os.path.dirname(os.path.realpath(__file__)) # 현재 파일의 절대 경로
+src_path = os.path.join(source_path, "src") # 현재 파일의 절대 경로 안에 'src' 디렉토리 path 생성
+sys.path.insert(0, src_path) # sys.path에 src_path 추가
 
 # Note: The following imports are carefully selected, they will work even
 # though rez is not yet built.
 #
-from rez.utils._version import _rez_version  # noqa: E402
-from rez.utils.which import which  # noqa: E402
-from rez.cli._entry_points import get_specifications  # noqa: E402
-from rez.vendor.distlib.scripts import ScriptMaker  # noqa: E402
+from rez.utils._version import _rez_version  # noqa: E402 #rez_version 가져오기
+from rez.utils.which import which  # noqa: E402 # 실행 파일의 경로를 찾는 함수
+from rez.cli._entry_points import get_specifications  # noqa: E402 # rez cli entry point 가져오기
+from rez.vendor.distlib.scripts import ScriptMaker  # noqa: E402    #Rez 패키지의 스크립트 생성 클래스 가져오기
 
 
 def create_virtual_environment(dest_dir: str) -> None:
@@ -268,17 +273,17 @@ def install_as_rez_package(repo_path):
             pass
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # 메인 엔트리 포인트
     parser = argparse.ArgumentParser(
         "Rez installer", description="Install rez in a production ready, "
                                      "standalone Python virtual environment.")
     parser.add_argument(
         '-v', '--verbose', action='count', dest='verbose', default=0,
-        help="Increase verbosity.")
+        help="Increase verbosity.") # verbose 옵션.  주요기능: 로그 출력
     parser.add_argument(
         '-s', '--keep-symlinks', action="store_true", default=False,
         help="Don't run realpath on the passed DIR to resolve symlinks; "
-             "ie, the baked script locations may still contain symlinks")
+             "ie, the baked script locations may still contain symlinks") # 심볼릭 링크 유지 옵션. 주요기능: realpath를 실행하지 않고 전달된 DIR에서 심볼릭 링크를 해결하지 않음
     parser.add_argument(
         '-p', '--as-rez-package', action="store_true",
         help="Install rez as a rez package. Note that this installs the API "
@@ -304,16 +309,16 @@ if __name__ == "__main__":
 
     # determine install path
     if opts.DIR:
-        path = opts.DIR
+        path = opts.DIR # 사용자가 지정한 경로
     elif opts.as_rez_package:
-        path = "~/packages"
+        path = "~/packages" # rez 패키지 저장소 경로
     else:
-        path = "/opt/rez"
+        path = "/opt/rez"   # 기본 경로
 
     if opts.as_rez_package:
-        dest_dir = path
+        dest_dir = path # rez 패키지
     else:
-        dest_dir = path.format(version=_rez_version)
+        dest_dir = path.format(version=_rez_version)    # rez 버전
 
     dest_dir = os.path.expanduser(dest_dir)
     if not opts.keep_symlinks:
